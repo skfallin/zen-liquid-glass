@@ -1,0 +1,145 @@
+/* Liquid Glass — Zen Mod
+ * Frosted glass + micro-interactions for the Zen UI.
+ * Options are dropdowns read with -moz-pref(): an unknown value keeps the defaults.
+ * !important everywhere, otherwise Zen's own styles win.
+ */
+
+/* ───────────── Token ───────────── */
+:root {
+  --lg-blur: 24px;
+  --lg-alpha: 35%;
+  --lg-page: 1;
+  --lg-radius: 14px;
+
+  --lg-base: white;
+  --lg-tint: color-mix(in srgb, var(--lg-base) var(--lg-alpha), transparent);
+  --lg-tint-strong: color-mix(in srgb, var(--lg-base) calc(var(--lg-alpha) + 25%), transparent);
+  /* Panels are separate windows: nothing behind them to blur, so keep them nearly opaque */
+  --lg-panel: color-mix(in srgb, var(--lg-base) 92%, transparent);
+  --lg-border: rgba(255, 255, 255, .35);
+  --lg-shine: inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -1px 0 rgba(0, 0, 0, .06);
+  --lg-depth: 0 10px 34px rgba(0, 0, 0, .18);
+  --lg-filter: blur(var(--lg-blur)) saturate(180%);
+
+  --lg-dur: .32s;
+  --lg-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --lg-ease: cubic-bezier(.2, .8, .2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lg-base: #1c1c1e;
+    --lg-border: rgba(255, 255, 255, .12);
+    --lg-shine: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 -1px 0 rgba(0, 0, 0, .3);
+    --lg-depth: 0 10px 34px rgba(0, 0, 0, .45);
+  }
+}
+
+/* ───────────── Options ───────────── */
+@media (-moz-pref("mod.liquidglass.blur_level", "light"))  { :root { --lg-blur: 12px; } }
+@media (-moz-pref("mod.liquidglass.blur_level", "strong")) { :root { --lg-blur: 40px; } }
+
+@media (-moz-pref("mod.liquidglass.glass", "transparent")) { :root { --lg-alpha: 0%; } }
+@media (-moz-pref("mod.liquidglass.glass", "clear"))   { :root { --lg-alpha: 20%; } }
+@media (-moz-pref("mod.liquidglass.glass", "frosted")) { :root { --lg-alpha: 60%; } }
+
+@media (-moz-pref("mod.liquidglass.page", "soft"))   { :root { --lg-page: .95; } }
+@media (-moz-pref("mod.liquidglass.page", "medium")) { :root { --lg-page: .9; } }
+@media (-moz-pref("mod.liquidglass.page", "strong")) { :root { --lg-page: .85; } }
+
+@media (-moz-pref("mod.liquidglass.no_shine")) {
+  :root { --lg-shine: inset 0 0 transparent; }
+}
+
+/* ───────────── Address bar ───────────── */
+/* Keep Zen's acrylic background; only animate the results */
+@keyframes lg-rise {
+  from { opacity: 0; transform: translateY(-4px) scale(.98); }
+}
+.urlbarView-row { animation: lg-rise var(--lg-dur) var(--lg-ease) backwards !important; }
+.urlbarView-row:nth-child(2) { animation-delay: calc(var(--lg-dur) * .08) !important; }
+.urlbarView-row:nth-child(3) { animation-delay: calc(var(--lg-dur) * .16) !important; }
+.urlbarView-row:nth-child(4) { animation-delay: calc(var(--lg-dur) * .24) !important; }
+.urlbarView-row:nth-child(5) { animation-delay: calc(var(--lg-dur) * .32) !important; }
+.urlbarView-row:nth-child(n+6) { animation-delay: calc(var(--lg-dur) * .40) !important; }
+
+/* ───────────── Tabs ───────────── */
+.tabbrowser-tab .tab-background {
+  transition:
+    transform var(--lg-dur) var(--lg-spring),
+    box-shadow var(--lg-dur) var(--lg-ease),
+    background var(--lg-dur) var(--lg-ease) !important;
+}
+
+.tabbrowser-tab:hover:not([selected]) .tab-background { transform: scale(1.015) !important; }
+.tabbrowser-tab:active .tab-background {
+  transform: scale(.97) !important;
+  transition-duration: calc(var(--lg-dur) / 3) !important;
+}
+
+/* Active tab = glass pane */
+.tabbrowser-tab:is([selected], [multiselected]) .tab-background {
+  background: var(--lg-tint-strong) !important;
+  backdrop-filter: var(--lg-filter) !important;
+  box-shadow: var(--lg-shine), 0 0 0 1px var(--lg-border), 0 2px 10px rgba(0, 0, 0, .08) !important;
+}
+
+/* New tab bounces in (on the stack, not the tab: dragging uses transform on the tab) */
+@keyframes lg-tab-in {
+  from { opacity: 0; transform: translateX(-10px) scale(.92); }
+}
+.tabbrowser-tab[fadein] .tab-stack { animation: lg-tab-in var(--lg-dur) var(--lg-spring) !important; }
+
+/* Icon "breathes" while loading */
+@keyframes lg-breathe {
+  50% { opacity: .45; transform: scale(.82); }
+}
+.tabbrowser-tab[busy] .tab-icon-stack { animation: lg-breathe 1.1s ease-in-out infinite !important; }
+
+/* ───────────── Toolbar buttons ───────────── */
+toolbarbutton > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  transition: transform var(--lg-dur) var(--lg-spring), background-color var(--lg-dur) var(--lg-ease) !important;
+}
+toolbarbutton:not([disabled]):hover > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  transform: scale(1.08) !important;
+}
+toolbarbutton:not([disabled]):active > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  transform: scale(.9) !important;
+  transition-duration: calc(var(--lg-dur) / 3) !important;
+}
+
+/* ───────────── Compact mode sidebar (floats over the page: this is where blur shines) ───────────── */
+:root[zen-compact-mode="true"] #navigator-toolbox .zen-toolbar-background {
+  background: var(--lg-tint) !important;
+  backdrop-filter: var(--lg-filter) !important;
+  box-shadow: var(--lg-shine), var(--lg-depth) !important;
+  border-radius: var(--lg-radius) !important;
+}
+
+/* ───────────── Semi-transparent page (default: opaque) ───────────── */
+:root:not([inDOMFullscreen="true"]) #tabbrowser-tabpanels browser[type="content"] {
+  opacity: var(--lg-page) !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root #tabbrowser-tabpanels browser[type="content"] { opacity: 1 !important; }
+}
+
+/* ───────────── Panels and menus ───────────── */
+:root {
+  --arrowpanel-background: var(--lg-panel) !important;
+  --arrowpanel-border-color: var(--lg-border) !important;
+  --arrowpanel-border-radius: var(--lg-radius) !important;
+  --panel-background: var(--lg-panel) !important;
+  --panel-border-color: var(--lg-border) !important;
+  --panel-border-radius: var(--lg-radius) !important;
+}
+
+/* ───────────── Reduced motion ───────────── */
+@media (-moz-pref("mod.liquidglass.no_animations")), (prefers-reduced-motion: reduce) {
+  :root { --lg-dur: 0s; }
+  .urlbarView-row,
+  .tabbrowser-tab .tab-stack,
+  .tabbrowser-tab[busy] .tab-icon-stack { animation: none !important; }
+  .tabbrowser-tab .tab-background,
+  toolbarbutton > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) { transform: none !important; }
+}

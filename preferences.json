@@ -1,0 +1,49 @@
+[
+  {
+    "property": "mod.liquidglass.glass",
+    "label": "Glass",
+    "type": "dropdown",
+    "defaultValue": "normal",
+    "options": [
+      { "label": "Fully transparent", "value": "transparent" },
+      { "label": "More transparent", "value": "clear" },
+      { "label": "Normal", "value": "normal" },
+      { "label": "More frosted", "value": "frosted" }
+    ]
+  },
+  {
+    "property": "mod.liquidglass.blur_level",
+    "label": "Blur",
+    "type": "dropdown",
+    "defaultValue": "medium",
+    "options": [
+      { "label": "Light", "value": "light" },
+      { "label": "Medium", "value": "medium" },
+      { "label": "Strong", "value": "strong" }
+    ]
+  },
+  {
+    "property": "mod.liquidglass.page",
+    "label": "Page transparency",
+    "type": "dropdown",
+    "defaultValue": "full",
+    "options": [
+      { "label": "None (opaque page)", "value": "full" },
+      { "label": "Light", "value": "soft" },
+      { "label": "Medium", "value": "medium" },
+      { "label": "Strong", "value": "strong" }
+    ]
+  },
+  {
+    "property": "mod.liquidglass.no_shine",
+    "label": "Disable edge highlights",
+    "type": "checkbox",
+    "defaultValue": false
+  },
+  {
+    "property": "mod.liquidglass.no_animations",
+    "label": "Disable animations",
+    "type": "checkbox",
+    "defaultValue": false
+  }
+]
